@@ -1,0 +1,10 @@
+{
+  "feeds": [
+    "https://rss.nytimes.com/services/xml/rss/nyt/Technology.xml",
+    "https://feeds.arstechnica.com/arstechnica/index"
+  ],
+  "rpcUrl": "https://mainnet.base.org",
+  "pollIntervalSeconds": 300,
+  "maxPostLength": 500,
+  "encryptionPassword": ""
+}
