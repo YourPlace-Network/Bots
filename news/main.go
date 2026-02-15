@@ -13,6 +13,7 @@ func main() {
 	configPath := flag.String("config", "config.json", "path to config.json")
 	dataDir := flag.String("data", "data", "path to data directory")
 	once := flag.Bool("once", false, "run once and exit")
+	single := flag.Bool("single", false, "post only the latest article from each feed, then exit")
 	flag.Parse()
 	cfg, err := LoadConfig(*configPath)
 	if err != nil {
@@ -21,7 +22,7 @@ func main() {
 	if err := os.MkdirAll(*dataDir, 0755); err != nil {
 		log.Fatalf("Could not create data directory: %v", err)
 	}
-	walletPath := filepath.Join(*dataDir, "wallet.json")
+	walletPath := filepath.Join("..", "wallet.json")
 	privateKey, address, err := LoadOrCreateWallet(walletPath, cfg.EncryptionPassword)
 	if err != nil {
 		log.Fatalf("Wallet error: %v", err)
@@ -42,37 +43,65 @@ func main() {
 				continue
 			}
 			fmt.Printf("Found %d items in feed\n", len(items))
-			for i := len(items) - 1; i >= 0; i-- {
-				item := items[i]
-				if item.GUID == "" {
-					continue
+			if *single {
+				for _, item := range items {
+					if item.GUID == "" {
+						continue
+					}
+					posted, err := dedup.IsPosted(item.GUID)
+					if err != nil {
+						fmt.Printf("Error checking dedup for %s: %v\n", item.GUID, err)
+						break
+					}
+					if posted {
+						continue
+					}
+					payload := BuildPostPayload(item.Title, item.Link, item.Description, cfg.MaxPostLength)
+					fmt.Printf("Posting: %s\n", item.Title)
+					txHash, err := SendPostTransaction(cfg.RpcUrl, privateKey, payload)
+					if err != nil {
+						fmt.Printf("Error sending transaction: %v\n", err)
+					} else {
+						fmt.Printf("Transaction sent: %s\n", txHash)
+						if err := dedup.MarkPosted(item.GUID, feedUrl, item.Title, txHash); err != nil {
+							fmt.Printf("Error marking as posted: %v\n", err)
+						}
+					}
+					break
 				}
-				posted, err := dedup.IsPosted(item.GUID)
-				if err != nil {
-					fmt.Printf("Error checking dedup for %s: %v\n", item.GUID, err)
-					continue
+			} else {
+				for i := len(items) - 1; i >= 0; i-- {
+					item := items[i]
+					if item.GUID == "" {
+						continue
+					}
+					posted, err := dedup.IsPosted(item.GUID)
+					if err != nil {
+						fmt.Printf("Error checking dedup for %s: %v\n", item.GUID, err)
+						continue
+					}
+					if posted {
+						continue
+					}
+					payload := BuildPostPayload(item.Title, item.Link, item.Description, cfg.MaxPostLength)
+					fmt.Printf("Posting: %s\n", item.Title)
+					txHash, err := SendPostTransaction(cfg.RpcUrl, privateKey, payload)
+					if err != nil {
+						fmt.Printf("Error sending transaction: %v\n", err)
+						continue
+					}
+					fmt.Printf("Transaction sent: %s\n", txHash)
+					if err := dedup.MarkPosted(item.GUID, feedUrl, item.Title, txHash); err != nil {
+						fmt.Printf("Error marking as posted: %v\n", err)
+					}
+					time.Sleep(5 * time.Second)
 				}
-				if posted {
-					continue
-				}
-				payload := BuildPostPayload(item.Title, item.Link, item.Description, cfg.MaxPostLength)
-				fmt.Printf("Posting: %s\n", item.Title)
-				txHash, err := SendPostTransaction(cfg.RpcUrl, privateKey, payload)
-				if err != nil {
-					fmt.Printf("Error sending transaction: %v\n", err)
-					continue
-				}
-				fmt.Printf("Transaction sent: %s\n", txHash)
-				if err := dedup.MarkPosted(item.GUID, feedUrl, item.Title, txHash); err != nil {
-					fmt.Printf("Error marking as posted: %v\n", err)
-				}
-				time.Sleep(5 * time.Second)
 			}
 		}
 		if err := dedup.CleanOld(30); err != nil {
 			fmt.Printf("Error cleaning old entries: %v\n", err)
 		}
-		if *once {
+		if *once || *single {
 			fmt.Println("Single run complete. Exiting.")
 			return
 		}
