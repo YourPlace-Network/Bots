@@ -1,5 +1,4 @@
 .idea/
 news/data/
-config.json
-wallet.json
+news/wallet.json
 newsbot

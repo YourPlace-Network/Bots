@@ -1,5 +1,5 @@
 {
-  "address": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA",
-  "encryptedPrivateKey": "<base64-encoded encrypted private key>",
-  "publicKey": "0xAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+  "address": "0x...",
+  "privateKey": "0x...",
+  "publicKey": "0x..."
 }

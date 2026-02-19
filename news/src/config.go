@@ -1,4 +1,4 @@
-package main
+package src
 
 import (
 	"encoding/json"
@@ -7,11 +7,15 @@ import (
 )
 
 type Config struct {
-	EncryptionPassword string   `json:"encryptionPassword"`
-	Feeds              []string `json:"feeds"`
-	MaxPostLength      int      `json:"maxPostLength"`
-	PollIntervalSeconds int     `json:"pollIntervalSeconds"`
-	RpcUrl             string   `json:"rpcUrl"`
+	Avatar              string   `json:"avatar"`
+	Banner              string   `json:"banner"`
+	Description         string   `json:"description"`
+	Feeds               []string `json:"feeds"`
+	MaxPostLength       int      `json:"maxPostLength"`
+	PollIntervalSeconds int      `json:"pollIntervalSeconds"`
+	RpcUrl              string   `json:"rpcUrl"`
+	Username            string   `json:"username"`
+	Vertical            string   `json:"vertical"`
 }
 
 func LoadConfig(path string) (*Config, error) {
@@ -34,9 +38,6 @@ func LoadConfig(path string) (*Config, error) {
 	}
 	if cfg.PollIntervalSeconds <= 0 {
 		cfg.PollIntervalSeconds = 300
-	}
-	if cfg.EncryptionPassword == "" {
-		cfg.EncryptionPassword = "yourplace-news-bot-default-key!!"
 	}
 	return &cfg, nil
 }

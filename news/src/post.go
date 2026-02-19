@@ -1,4 +1,4 @@
-package main
+package src
 
 import (
 	"context"
@@ -30,11 +30,11 @@ func BuildPostPayload(title, link, description string, maxLen int) string {
 			if len(desc) > remaining {
 				desc = desc[:remaining] + "..."
 			}
-			content += "\n\n" + desc
+			content += "<br><br>" + desc
 		}
 	}
 	if link != "" {
-		content += "\n\n\U0001F517 " + link
+		content += "<br><br>\U0001F517 " + link
 	}
 	if len(content) > maxLen {
 		content = content[:maxLen-3] + "..."

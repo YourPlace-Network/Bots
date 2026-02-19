@@ -1,0 +1,19 @@
+{
+  "avatar": "https://yourplace-static-resources.s3.us-east-1.amazonaws.com/news_bot.png",
+  "banner": "https://yourplace-static-resources.s3.us-east-1.amazonaws.com/news_bot_header.jpg",
+  "description": "What's Happening In The World",
+  "feeds": [
+    "https://feeds.bbci.co.uk/news/rss.xml",
+    "https://moxie.foxnews.com/google-publisher/latest.xml",
+    "http://rss.cnn.com/rss/cnn_topstories.rss",
+    "https://search.cnbc.com/rs/search/combinedcms/view.xml?partnerId=wrss01&id=100003114",
+    "https://nypost.com/us-news/feed/",
+    "https://nypost.com/world-news/feed/",
+    "https://feeds.npr.org/1004/rss.xml"
+  ],
+  "maxPostLength": 500,
+  "pollIntervalSeconds": 300,
+  "rpcUrl": "https://mainnet.base.org",
+  "username": "News Bot",
+  "vertical": "news"
+}
