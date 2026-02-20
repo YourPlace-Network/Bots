@@ -6,6 +6,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"math/big"
+	"net/url"
 	"strings"
 	"time"
 
@@ -23,9 +24,14 @@ const (
 
 func BuildPostPayload(title, link, description string, maxLen int) string {
 	content := "\U0001F4F0 " + title
+	linkSection := ""
+	if link != "" {
+		displayLink := stripQueryParams(link)
+		linkSection = "<br><br>\U0001F517 <a href=\"" + link + "\">" + displayLink + "</a>"
+	}
 	if description != "" {
 		desc := sanitizeNonPrintable(description)
-		remaining := maxLen - len(content) - len(link) - 10
+		remaining := maxLen - len(content) - len(linkSection) - 8
 		if remaining > 0 && len(desc) > 0 {
 			if len(desc) > remaining {
 				desc = desc[:remaining] + "..."
@@ -33,9 +39,7 @@ func BuildPostPayload(title, link, description string, maxLen int) string {
 			content += "<br><br>" + desc
 		}
 	}
-	if link != "" {
-		content += "<br><br>\U0001F517 " + link
-	}
+	content += linkSection
 	if len(content) > maxLen {
 		content = content[:maxLen-3] + "..."
 	}
@@ -86,4 +90,11 @@ func SendPostTransaction(rpcUrl string, privateKey *ecdsa.PrivateKey, payload st
 		return "", fmt.Errorf("could not send transaction: %w", err)
 	}
 	return signedTx.Hash().Hex(), nil
+}
+func stripQueryParams(rawURL string) string {
+	parsed, err := url.Parse(rawURL)
+	if err != nil {
+		return rawURL
+	}
+	return parsed.Host + parsed.Path
 }
