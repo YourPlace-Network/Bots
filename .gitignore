@@ -1,4 +1,5 @@
 .idea/
 news/data/
 news/wallet.json
+news/localethereum_wallet.json
 newsbot
