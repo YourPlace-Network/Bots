@@ -29,6 +29,7 @@ Create a `config.json` in the `news/` directory:
 |-------|----------|---------|-------------|
 | `avatar` | No | | Profile avatar URL (set via `-metadata` flag) |
 | `banner` | No | | Profile banner URL (set via `-metadata` flag) |
+| `bot` | No | `false` | Mark profile as a bot (set via `-metadata` flag) |
 | `description` | No | | Profile description (set via `-metadata` flag) |
 | `feeds` | Yes | | List of RSS/Atom feed URLs |
 | `maxPostLength` | No | `500` | Maximum character length per post |
@@ -58,10 +59,21 @@ The wallet file contains:
 ## Usage
 
 ```sh
-make              # continuous polling
-make run_metadata # set profile metadata onchain and exit
-make run_single   # post only the latest article from each feed, then exit
+make                          # continuous polling
+make run_metadata             # set all profile metadata onchain and exit
+make run_metadata_key KEY=bot # set a single metadata key onchain and exit
+make run_single               # post only the latest article from each feed, then exit
 ```
+
+To update a single metadata value without resending everything:
+
+```sh
+go run . -metadata-key=bot         # set just the bot flag
+go run . -metadata-key=avatar      # set just the avatar
+go run . -metadata-key=description # set just the description
+```
+
+Valid keys: `avatar`, `banner`, `bot`, `description`, `username`, `vertical`.
 
 ### Flags
 
@@ -69,6 +81,7 @@ make run_single   # post only the latest article from each feed, then exit
 |------|---------|-------------|
 | `-config` | `config.json` | Path to config file |
 | `-data` | `data` | Path to data directory (stores dedup database) |
-| `-metadata` | `false` | Set profile metadata onchain from config values, then exit |
+| `-metadata` | `false` | Set all profile metadata onchain from config values, then exit |
+| `-metadata-key` | | Set a single metadata key onchain and exit (avatar, banner, bot, description, username, vertical) |
 | `-once` | `false` | Process all unposted articles once, then exit |
 | `-single` | `false` | Post only the latest article from each feed, then exit |

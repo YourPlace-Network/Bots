@@ -36,6 +36,10 @@ func SendMetadataBanner(rpcUrl string, privateKey *ecdsa.PrivateKey, banner stri
 	payload, _ := json.Marshal(map[string]string{"b": banner})
 	return SendPostTransaction(rpcUrl, privateKey, "yp/1/mb:"+string(payload))
 }
+func SendMetadataBot(rpcUrl string, privateKey *ecdsa.PrivateKey, bot bool) (string, error) {
+	payload, _ := json.Marshal(map[string]bool{"bot": bot})
+	return SendPostTransaction(rpcUrl, privateKey, "yp/1/mbot:"+string(payload))
+}
 func SendMetadataDescription(rpcUrl string, privateKey *ecdsa.PrivateKey, description string) (string, error) {
 	description = sanitizeNonPrintable(description)
 	payload, _ := json.Marshal(map[string]string{"d": description})

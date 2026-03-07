@@ -1,6 +1,7 @@
 {
   "avatar": "https://yourplace-static-resources.s3.us-east-1.amazonaws.com/news_bot.png",
   "banner": "https://yourplace-static-resources.s3.us-east-1.amazonaws.com/news_bot_header.jpg",
+  "bot": true,
   "description": "What's Happening In The World",
   "feeds": [
     "https://feeds.bbci.co.uk/news/rss.xml",

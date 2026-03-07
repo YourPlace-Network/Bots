@@ -9,6 +9,7 @@ import (
 type Config struct {
 	Avatar              string   `json:"avatar"`
 	Banner              string   `json:"banner"`
+	Bot                 bool     `json:"bot"`
 	Description         string   `json:"description"`
 	Feeds               []string `json:"feeds"`
 	MaxPostLength       int      `json:"maxPostLength"`

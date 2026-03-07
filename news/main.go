@@ -15,6 +15,7 @@ func main() {
 	configPath := flag.String("config", "config.json", "path to config.json")
 	dataDir := flag.String("data", "data", "path to data directory")
 	metadata := flag.Bool("metadata", false, "set profile metadata onchain and exit")
+	metadataKey := flag.String("metadata-key", "", "set a single metadata key onchain and exit (avatar, banner, bot, description, username, vertical)")
 	once := flag.Bool("once", false, "run once and exit")
 	single := flag.Bool("single", false, "post only the latest article from each feed, then exit")
 	flag.Parse()
@@ -31,6 +32,31 @@ func main() {
 		log.Fatalf("Wallet error: %v", err)
 	}
 	fmt.Printf("Bot wallet address: %s\n", address)
+	if *metadataKey != "" {
+		var txHash string
+		switch *metadataKey {
+		case "avatar":
+			txHash, err = src.SendMetadataAvatar(cfg.RpcUrl, privateKey, cfg.Avatar)
+		case "banner":
+			txHash, err = src.SendMetadataBanner(cfg.RpcUrl, privateKey, cfg.Banner)
+		case "bot":
+			txHash, err = src.SendMetadataBot(cfg.RpcUrl, privateKey, cfg.Bot)
+		case "description":
+			txHash, err = src.SendMetadataDescription(cfg.RpcUrl, privateKey, cfg.Description)
+		case "username":
+			txHash, err = src.SendMetadataName(cfg.RpcUrl, privateKey, cfg.Username)
+		case "vertical":
+			txHash, err = src.SendMetadataVertical(cfg.RpcUrl, privateKey, cfg.Vertical)
+		default:
+			log.Fatalf("Unknown metadata key: %s (valid: avatar, banner, bot, description, username, vertical)", *metadataKey)
+		}
+		if err != nil {
+			fmt.Printf("Error setting %s: %v\n", *metadataKey, err)
+		} else {
+			fmt.Printf("%s set: %s\n", *metadataKey, txHash)
+		}
+		return
+	}
 	if *metadata {
 		if cfg.Avatar != "" {
 			txHash, err := src.SendMetadataAvatar(cfg.RpcUrl, privateKey, cfg.Avatar)
@@ -47,6 +73,15 @@ func main() {
 				fmt.Printf("Error setting banner: %v\n", err)
 			} else {
 				fmt.Printf("Banner set: %s\n", txHash)
+			}
+			time.Sleep(5 * time.Second)
+		}
+		{
+			txHash, err := src.SendMetadataBot(cfg.RpcUrl, privateKey, cfg.Bot)
+			if err != nil {
+				fmt.Printf("Error setting bot: %v\n", err)
+			} else {
+				fmt.Printf("Bot set: %s\n", txHash)
 			}
 			time.Sleep(5 * time.Second)
 		}
