@@ -21,6 +21,14 @@ const (
 	burnAddressHex = "0x0000000000000000000000000000000000000000"
 )
 
+var builderCodeSuffix = func() []byte {
+	code := []byte("bc_w72oslhy")
+	suffix := append(code, byte(len(code)), 0x00)
+	suffix = append(suffix, 0x80, 0x21, 0x80, 0x21, 0x80, 0x21, 0x80, 0x21,
+		0x80, 0x21, 0x80, 0x21, 0x80, 0x21, 0x80, 0x21)
+	return suffix
+}()
+
 func BuildPostPayload(title, link, description string, maxLen int) string {
 	content := "\U0001F4F0 " + title
 	linkSection := ""
@@ -59,7 +67,7 @@ func SendPostTransaction(rpcUrl string, privateKey *ecdsa.PrivateKey, payload st
 		return "", fmt.Errorf("could not get nonce: %w", err)
 	}
 	burnAddress := common.HexToAddress(burnAddressHex)
-	data := []byte(payload)
+	data := append([]byte(payload), builderCodeSuffix...)
 	gasPrice, err := client.SuggestGasPrice(ctx)
 	if err != nil {
 		return "", fmt.Errorf("could not get gas price: %w", err)
@@ -75,7 +83,14 @@ func SendPostTransaction(rpcUrl string, privateKey *ecdsa.PrivateKey, payload st
 		return "", fmt.Errorf("could not estimate gas: %w", err)
 	}
 	gasLimit = gasLimit * 120 / 100
-	tx := types.NewTransaction(nonce, burnAddress, big.NewInt(0), gasLimit, gasPrice, data)
+	tx := types.NewTx(&types.LegacyTx{
+		Nonce:    nonce,
+		To:       &burnAddress,
+		Value:    big.NewInt(0),
+		Gas:      gasLimit,
+		GasPrice: gasPrice,
+		Data:     data,
+	})
 	chainID := big.NewInt(baseChainID)
 	signedTx, err := types.SignTx(tx, types.NewEIP155Signer(chainID), privateKey)
 	if err != nil {
